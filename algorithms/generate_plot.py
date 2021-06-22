@@ -3,8 +3,9 @@ import os
 import matplotlib.pyplot as plt
 
 img_arr = []
-
-for dir in os.listdir():
+dirs = os.listdir()
+dirs.sort()
+for dir in dirs:
     if os.path.isdir(dir):
         if (dir[0] != '.'):
             path = dir + '/plots/plot.png'

@@ -1,0 +1,8 @@
+*.png
+build
+plots
+dram.txt
+l1.txt
+l2.txt
+generate_bw.sh
+.vscode

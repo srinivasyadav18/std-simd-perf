@@ -119,6 +119,13 @@ for bw_idx, bw in enumerate(['l1', 'l2', 'dram']):
     axs[bw_idx].text(1024, p_peak_par + cpu_count/2 * math.log2(p_peak_par),
                         f'PAR {bw.upper()} BW : {round(par_bw)} GBPS',
                         color='grey')
+    f'SEQ {bw} Peak : {p_peak_seq}, GFLOPS'
+    axs[bw_idx].text(1024, p_peak_seq - 2 * math.log2(p_peak_seq), 
+                        f'SEQ {bw.upper()} Peak : {p_peak_seq}, GFLOPS',
+                        color='grey')
+    axs[bw_idx].text(1024, p_peak_par - cpu_count * math.log2(p_peak_par),
+                        f'PAR {bw.upper()} Peak : {p_peak_par}, GFLOPS',
+                        color='grey')
 
 
 for dir, c in {'foreach_simple' : 'green', 'foreach_complex' : 'blue'}.items():

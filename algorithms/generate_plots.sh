@@ -5,7 +5,6 @@ do
     cd $dir
     
     echo $(pwd)
-    rm -rf build
     mkdir -p build
     cmake -S . -B ./build -GNinja -DCMAKE_BUILD_TYPE=Release > /dev/null
     cd build

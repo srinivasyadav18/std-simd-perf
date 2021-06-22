@@ -52,8 +52,7 @@ policies = ['simd', 'par', 'simdpar']
 colors = ['orange', 'blue', 'red']
 sizeof = {'int' : 4, 'float' : 4, 'double' : 8}
 
-# for dir in os.listdir():
-for dir in ['simple_arithmetic', 'complex_arithmetic']:
+for dir in set(os.listdir()):
     fig, axs = plt.subplots(3, 1)
     fig.set_figheight(24)
     fig.set_figwidth(16)
