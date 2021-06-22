@@ -11,7 +11,7 @@ do
     cd build
     ninja
     cd ..
-    build/exe --end=23 --iterations=10
+    build/exe
     rm -rf build *.log
     cd ..
 done
