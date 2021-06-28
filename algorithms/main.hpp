@@ -2,53 +2,14 @@
 #include <hpx/hpx.hpp>
 #include <hpx/hpx_init.hpp>
 #include <hpx/include/datapar.hpp>
-#include <hpx/modules/testing.hpp>
-#include <hpx/modules/timing.hpp>
-#include <hpx/parallel/util/loop.hpp>
 
-#include <algorithm>
-#include <cstddef>
-#include <cstdint>
-#include <iostream>
-#include <numeric>
-#include <sstream>
-#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <vector>
 #include <fstream>
-
 #include <cmath>
 #include <experimental/simd>
 
-// Actual test function object
-struct test_t
-{
-    template <typename T>
-    void operator()(T &t)
-    {
-        t += 64;
-        t += 2 * t;
-        t *= 23;
-        t -= 3 * t;
-    }
-};
-
-
-template <typename ExPolicy, typename T>
-auto test(ExPolicy policy, std::size_t n)
-{  
-    std::vector<T> nums(n);
-    for (auto &i : nums)
-        i = rand() % 1024;
-
-    auto t1 = std::chrono::high_resolution_clock::now();
-        hpx::for_each(policy, nums.begin(), nums.end(), test_t{});
-    auto t2 = std::chrono::high_resolution_clock::now();
-
-    std::chrono::duration<double> diff = t2 - t1;
-    return diff.count();
-}
 
 template <typename ExPolicy, typename T>
 auto test(ExPolicy policy, std::size_t iterations, std::size_t n)
@@ -73,7 +34,13 @@ void test(std::string type,
     std::ofstream fout(file_name.c_str());
 
     static constexpr size_t lane = std::experimental::native_simd<T>::size();
-    size_t threads = hpx::get_os_thread_count();
+
+    auto& seq_pol = hpx::execution::seq;
+    auto& simd_pol = hpx::execution::simd;
+    auto& par_pol = hpx::execution::par;
+    auto& simdpar_pol = hpx::execution::simdpar;
+
+    std::size_t buffer = 0;
     fout << "n,lane,threads,seq,simd,par,simdpar\n";
     for (std::size_t i = start; i <= end; i++)
     {
@@ -83,18 +50,25 @@ void test(std::string type,
             << ","
             << threads
             << ","
-            << test<hpx::execution::sequenced_policy, T>(
-            hpx::execution::seq, iterations, std::pow(2, i)) 
+            << test<decltype(seq_pol), T>(
+                seq_pol, iterations, std::pow(2, i)) 
             << ","
-            << test<hpx::execution::simd_policy, T>(
-            hpx::execution::simd, iterations, std::pow(2, i))
+            << test<decltype(simd_pol), T>(
+                simd_pol, iterations, std::pow(2, i))
             << ","
-            << test<hpx::execution::parallel_policy, T>(
-            hpx::execution::par, iterations, std::pow(2, i)) 
+            << test<decltype(par_pol), T>(
+                par_pol, iterations * 10, std::pow(2, i)) 
             << ","
-            << test<hpx::execution::simdpar_policy, T>(
-            hpx::execution::simdpar, iterations, std::pow(2, i)) 
+            << test<decltype(simdpar_pol), T>(
+                simdpar_pol, iterations * 10, std::pow(2, i)) 
             << "\n";
+        buffer++;
+        if (buffer % 5 == 0) 
+        {
+            buffer = 0;
+            iterations /= 2;
+        }
+        fout.flush();
     }
     fout.close();
 }
@@ -102,13 +76,23 @@ void test(std::string type,
 int hpx_main(hpx::program_options::variables_map& vm)
 {
     system("rm -rf plots && mkdir -p plots");
+    threads = hpx::get_os_thread_count();
     std::uint64_t const iterations = vm["iterations"].as<std::uint64_t>();
     std::uint64_t const start = vm["start"].as<std::uint64_t>();
     std::uint64_t const end = vm["end"].as<std::uint64_t>();
 
-    test<int>("int", start, end, iterations);
-    test<float>("float", start, end, iterations);
-    test<double>("double", start, end, iterations);
+    #if defined (SIMD_TEST_WITH_INT)
+        test<int>("int", start, end, iterations);
+    #endif
+
+
+    #if defined (SIMD_TEST_WITH_FLOAT)
+        test<float>("float", start, end, iterations);
+    #endif
+
+    #if defined (SIMD_TEST_WITH_DOUBLE)
+        test<double>("double", start, end, iterations);
+    #endif
 
     return hpx::finalize();
 }
@@ -120,11 +104,11 @@ int main(int argc, char *argv[])
 
     po::options_description desc_commandline;
     desc_commandline.add_options()
-        ("iterations", po::value<std::uint64_t>()->default_value(10),
+        ("iterations", po::value<std::uint64_t>()->default_value(100),
          "number of repititions")
         ("start", po::value<std::uint64_t>()->default_value(5),
          "start of number of elements in 2^x")
-        ("end", po::value<std::uint64_t>()->default_value(25),
+        ("end", po::value<std::uint64_t>()->default_value(20),
          "end of number of elements in 2^x")
     ;
 
