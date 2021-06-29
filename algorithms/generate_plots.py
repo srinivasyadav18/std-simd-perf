@@ -57,7 +57,7 @@ def plot_grain_size(policies):
         y_tick_labels.append(-i)
     x_tick_labels = n
 
-    title_ = dir.replace('.', ' ').replace('/', ' ').strip().removeprefix(dir.split('/')[-1])
+    title_ = dir.replace('.', ' ').replace('/', ' ').strip()
     title = f'{title_} with {type_}s  ({cpu_familiy})'
     axs.set_title(title, fontsize=20, color="gray", pad=15, weight="heavy")
     axs.set_ylabel("Grain size in 10^", color='green', fontsize=20)
@@ -178,7 +178,7 @@ for path, dirs, files in os.walk('.'):
 
                     # Title
                     # print(f'dir = {dir}')
-                    title_ = dir.replace('.', ' ').replace('/', ' ').removeprefix(dir.split('/')[-1])
+                    title_ = dir.replace('.', ' ').replace('/', ' ').strip()
                     title = f'{title_} with {type_}s  ({cpu_familiy})'
                     axs.set_title(title, fontsize=20, color="gray", pad=15, weight="heavy")
                     axs.set_ylabel("Speed Up vs sequential", color='green', fontsize=20)
