@@ -11,7 +11,7 @@ do
             cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release > /dev/null
             ninja
         cd ..
-        build/exe > /dev/null
+        build/exe $SIMD_END $SIMD_CORES > /dev/null
     cd $cwd_
 done
 python3 generate_plots.py

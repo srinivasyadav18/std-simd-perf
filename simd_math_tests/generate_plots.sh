@@ -11,7 +11,7 @@ do
     cd build
     ninja
     cd ..
-    build/exe
+    build/exe $SIMD_END > /dev/null
     rm -rf build *.log
     cd ..
 done

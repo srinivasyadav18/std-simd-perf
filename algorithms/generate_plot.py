@@ -27,7 +27,7 @@ print(len(perf_plots_paths), len(grain_size_plots_paths))
 perfs = perf_plots_paths
 grains = grain_size_plots_paths
 
-for chunk, chunk_name in zip([perfs, grains], ['perfs', 'grains']):
+for chunk, chunk_name in zip([perfs, grains], ['plots', 'grains']):
     fig, ax = plt.subplots(len(chunk), 1)
     fig.set_figheight(len(chunk) * 8)
     fig.set_figwidth(16)
