@@ -11,7 +11,7 @@ do
     cd build
     ninja
     cd ..
-    build/exe $SIMD_END > /dev/null
+    hwloc-bind core:10:19  build/exe $SIMD_END > /dev/null
     rm -rf build *.log
     cd ..
 done

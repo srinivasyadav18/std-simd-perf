@@ -11,7 +11,7 @@ do
             cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release > /dev/null
             ninja
         cd ..
-        build/exe $SIMD_END $SIMD_CORES > /dev/null
+        hwloc-bind core:10:19 build/exe $SIMD_END $SIMD_CORES > /dev/null
     cd $cwd_
 done
 python3 generate_plots.py
