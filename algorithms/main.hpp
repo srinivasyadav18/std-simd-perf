@@ -57,10 +57,10 @@ void test(std::string type,
                 simd_pol, iterations, std::pow(2, i))
             << ","
             << test<decltype(par_pol), T>(
-                par_pol, iterations * 10, std::pow(2, i)) 
+                par_pol, iterations * 2, std::pow(2, i)) 
             << ","
             << test<decltype(simdpar_pol), T>(
-                simdpar_pol, iterations * 10, std::pow(2, i)) 
+                simdpar_pol, iterations * 2, std::pow(2, i)) 
             << "\n";
         buffer++;
         if (buffer % 5 == 0) 
@@ -104,11 +104,11 @@ int main(int argc, char *argv[])
 
     po::options_description desc_commandline;
     desc_commandline.add_options()
-        ("iterations", po::value<std::uint64_t>()->default_value(100),
+        ("iterations", po::value<std::uint64_t>()->default_value(50),
          "number of repititions")
         ("start", po::value<std::uint64_t>()->default_value(5),
          "start of number of elements in 2^x")
-        ("end", po::value<std::uint64_t>()->default_value(25),
+        ("end", po::value<std::uint64_t>()->default_value(23),
          "end of number of elements in 2^x")
     ;
 
