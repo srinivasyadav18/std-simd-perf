@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     desc_commandline.add_options()
         ("start", po::value<std::uint64_t>()->default_value(5),
          "start of number of elements in 2^x")
-        ("end", po::value<std::uint64_t>()->default_value(25),
+        ("end", po::value<std::uint64_t>()->default_value(20),
          "end of number of elements in 2^x")
     ;
 
