@@ -1,8 +1,9 @@
+./copy/copy_naive/plots
 ./copy/copy_n/plots
 ./copy/copy/plots
 ./count/count_if/plots
+./count/count_naive/plots
 ./count/count/plots
-./fill/fill_n/plots
 ./fill/fill/plots
 ./for_each/compute_bound/default_chunk_hpx_vector/plots
 ./for_each/compute_bound/default_chunk/plots
