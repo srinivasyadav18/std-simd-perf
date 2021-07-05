@@ -1,0 +1,9 @@
+./compute_bound/default_chunk_hpx_vector/plots
+./compute_bound/default_chunk/plots
+./compute_bound/static_chunk_hpx_vector/plots
+./compute_bound/static_chunk/plots
+./for_each_n/plots
+./memory_bound/default_chunk_hpx_vector/plots
+./memory_bound/default_chunk/plots
+./memory_bound/static_chunk_hpx_vector/plots
+./memory_bound/static_chunk/plots

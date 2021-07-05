@@ -1,0 +1,3 @@
+./all_of/plots
+./any_of/plots
+./none_of/plots
