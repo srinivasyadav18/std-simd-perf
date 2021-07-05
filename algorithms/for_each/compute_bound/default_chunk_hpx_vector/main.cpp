@@ -20,8 +20,8 @@ int threads;
 //----------------------------------
 
 
-template <typename ExPolicy, typename T>
-auto test(ExPolicy policy, std::size_t n)
+template <typename ExPolicy, typename T, typename Gen>
+auto test(ExPolicy policy, std::size_t n, Gen gen)
 {  
     using allocator_type = hpx::compute::host::block_allocator<T>;
     using executor_type = hpx::compute::host::block_executor<>;
@@ -31,8 +31,13 @@ auto test(ExPolicy policy, std::size_t n)
     executor_type executor(numa_domains);
 
     hpx::compute::vector<T, allocator_type> nums(n, 0.0, alloc);
-    for (auto &i : nums)
-        i = rand() % 1024;
+    if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>){
+        hpx::generate(hpx::execution::par.on(executor), nums.begin(), nums.end(), gen);
+    }
+    else
+    {
+        hpx::generate(hpx::execution::seq, nums.begin(), nums.end(), gen);
+    }
     
     auto t1 = std::chrono::high_resolution_clock::now();
         if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>){

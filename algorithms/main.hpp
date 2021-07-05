@@ -9,24 +9,24 @@
 #include <fstream>
 #include <cmath>
 #include <experimental/simd>
+#include <random>
 
-
-template <typename ExPolicy, typename T>
-auto test(ExPolicy policy, std::size_t iterations, std::size_t n)
+template <typename ExPolicy, typename T, typename Gen>
+auto test3(ExPolicy policy, std::size_t iterations, std::size_t n, Gen gen)
 {
     double avg_time = 0.0;
     for (std::size_t i = 0; i < iterations; i++)
     {
-        avg_time += test<ExPolicy, T>(policy, n);
+        avg_time += test<ExPolicy, T, Gen>(policy, n, gen);
     }
     avg_time /= (double) iterations;
     return avg_time;
 }
 
-template <typename T>
-void test(std::string type, 
+template <typename T, typename Gen>
+void test4(std::string type, 
         std::size_t start, std::size_t end,
-        std::size_t iterations)
+        std::size_t iterations, Gen gen)
 {
     std::string file_name = std::string("plots/") +
                             type + 
@@ -50,17 +50,17 @@ void test(std::string type,
             << ","
             << threads
             << ","
-            << test<decltype(seq_pol), T>(
-                seq_pol, iterations, std::pow(2, i)) 
+            << test3<decltype(seq_pol), T, Gen>(
+                seq_pol, iterations/2, std::pow(2, i), gen) 
             << ","
-            << test<decltype(simd_pol), T>(
-                simd_pol, iterations, std::pow(2, i))
+            << test3<decltype(simd_pol), T, Gen>(
+                simd_pol, iterations, std::pow(2, i), gen)
             << ","
-            << test<decltype(par_pol), T>(
-                par_pol, iterations * 2, std::pow(2, i)) 
+            << test3<decltype(par_pol), T, Gen>(
+                par_pol, iterations * 2, std::pow(2, i), gen) 
             << ","
-            << test<decltype(simdpar_pol), T>(
-                simdpar_pol, iterations * 2, std::pow(2, i)) 
+            << test3<decltype(simdpar_pol), T, Gen>(
+                simdpar_pol, iterations * 4, std::pow(2, i), gen) 
             << "\n";
         buffer++;
         if (buffer % 5 == 0) 
@@ -73,6 +73,32 @@ void test(std::string type,
     fout.close();
 }
 
+std::random_device rnd_device;
+std::mt19937 mersenne_engine {rnd_device()};
+struct gen_int_t{
+    std::uniform_int_distribution<int> dist_int {1, 1024};
+    auto operator()()
+    {
+        return dist_int(mersenne_engine);
+    }
+} gen_int{};
+
+struct gen_float_t{
+    std::uniform_real_distribution<float> dist_float {1, 1024};
+    auto operator()()
+    {
+        return dist_float(mersenne_engine);
+   }
+} gen_float{};
+
+struct gen_double_t{
+    std::uniform_real_distribution<double> dist_double {1, 1024};
+    auto operator()()
+    {
+        return dist_double(mersenne_engine);
+    }
+} gen_double{};
+
 int hpx_main(hpx::program_options::variables_map& vm)
 {
     system("rm -rf plots && mkdir -p plots");
@@ -82,16 +108,16 @@ int hpx_main(hpx::program_options::variables_map& vm)
     std::uint64_t const end = vm["end"].as<std::uint64_t>();
 
     #if defined (SIMD_TEST_WITH_INT)
-        test<int>("int", start, end, iterations);
+        test4<int, gen_int_t>("int", start, end, iterations, gen_int);
     #endif
 
 
     #if defined (SIMD_TEST_WITH_FLOAT)
-        test<float>("float", start, end, iterations);
+        test4<float, gen_float_t>("float", start, end, iterations, gen_float);
     #endif
 
     #if defined (SIMD_TEST_WITH_DOUBLE)
-        test<double>("double", start, end, iterations);
+        test4<double, gen_double_t>("double", start, end, iterations, gen_double);
     #endif
 
     return hpx::finalize();
@@ -108,7 +134,7 @@ int main(int argc, char *argv[])
          "number of repititions")
         ("start", po::value<std::uint64_t>()->default_value(5),
          "start of number of elements in 2^x")
-        ("end", po::value<std::uint64_t>()->default_value(23),
+        ("end", po::value<std::uint64_t>()->default_value(25),
          "end of number of elements in 2^x")
     ;
 

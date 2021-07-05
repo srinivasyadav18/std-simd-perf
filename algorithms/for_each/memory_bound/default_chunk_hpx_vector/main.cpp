@@ -20,9 +20,9 @@ int threads;
 //----------------------------------
 
 
-template <typename ExPolicy, typename T>
-auto test(ExPolicy policy, std::size_t n)
-{  
+template <typename ExPolicy, typename T, typename Gen>
+auto test(ExPolicy policy, std::size_t n, Gen gen)
+{   
     using allocator_type = hpx::compute::host::block_allocator<T>;
     using executor_type = hpx::compute::host::block_executor<>;
 
@@ -31,10 +31,20 @@ auto test(ExPolicy policy, std::size_t n)
     executor_type executor(numa_domains);
 
     hpx::compute::vector<T, allocator_type> a(n, 0.0, alloc), b(n, 0.0, alloc);
-    for (auto &i : a)
-        i = rand() % 1024;
-    for (auto &i : b)
-        i = rand() % 1024;
+    if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>){
+        hpx::generate(hpx::execution::par.on(executor), a.begin(), a.end(), gen);
+    }
+    else
+    {
+        hpx::generate(hpx::execution::seq, a.begin(), a.end(), gen);
+    }
+    if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>){
+        hpx::generate(hpx::execution::par.on(executor), b.begin(), b.end(), gen);
+    }
+    else
+    {
+        hpx::generate(hpx::execution::seq, b.begin(), b.end(), gen);
+    }
     
     auto begin_ = hpx::util::make_zip_iterator(
         std::begin(a), std::begin(b));

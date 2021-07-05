@@ -18,12 +18,17 @@ int threads;
 //----------------------------------
 
 
-template <typename ExPolicy, typename T>
-auto test(ExPolicy policy, std::size_t n)
+template <typename ExPolicy, typename T, typename Gen>
+auto test(ExPolicy policy, std::size_t n, Gen gen)
 {  
     std::vector<T> nums(n);
-    for (auto &i : nums)
-        i = rand() % 1024;
+    if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>){
+        hpx::generate(hpx::execution::par, nums.begin(), nums.end(), gen);
+    }
+    else
+    {
+        hpx::generate(hpx::execution::seq, nums.begin(), nums.end(), gen);
+    }
     
     hpx::execution::static_chunk_size cs(((int)n)/threads);
     auto t1 = std::chrono::high_resolution_clock::now();

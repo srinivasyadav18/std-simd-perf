@@ -2,6 +2,7 @@
 #include <hpx/hpx.hpp>
 #include <hpx/hpx_init.hpp>
 #include <hpx/include/datapar.hpp>
+#include <hpx/include/compute.hpp>
 
 #include <string>
 #include <type_traits>
@@ -9,6 +10,7 @@
 #include <fstream>
 #include <cmath>
 #include <experimental/simd>
+#include <random>
 
 int threads;
 
@@ -51,12 +53,25 @@ void copy_algo(Iter first, Iter last, Iter dest)
     }
 }
 
-template <typename ExPolicy, typename T>
-auto test(ExPolicy policy, std::size_t n)
+template <typename ExPolicy, typename T, typename Gen>
+auto test(ExPolicy policy, std::size_t n, Gen gen)
 {  
-    std::vector<T> nums(n), nums2(n);
-    for (auto &i : nums)
-        i = rand() % 1024;
+    using executor_type = hpx::compute::host::block_executor<>;
+    using allocator_type = hpx::compute::host::block_allocator<T>;
+
+    auto numa_domains = hpx::compute::host::numa_domains();
+    allocator_type alloc(numa_domains);
+    executor_type executor(numa_domains);
+
+    hpx::compute::vector<T, allocator_type> nums(n, 0.0, alloc), 
+                                            nums2(n, 0.0, alloc);
+    if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>){
+        hpx::generate(hpx::execution::par.on(executor), nums.begin(), nums.end(), gen);
+    }
+    else
+    {
+        hpx::generate(hpx::execution::seq, nums.begin(), nums.end(), gen);
+    }
 
     auto t1 = std::chrono::high_resolution_clock::now();
 

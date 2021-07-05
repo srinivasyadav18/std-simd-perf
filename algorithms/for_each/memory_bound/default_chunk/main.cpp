@@ -18,14 +18,24 @@ int threads;
 //----------------------------------
 
 
-template <typename ExPolicy, typename T>
-auto test(ExPolicy policy, std::size_t n)
-{   
+template <typename ExPolicy, typename T, typename Gen>
+auto test(ExPolicy policy, std::size_t n, Gen gen)
+{  
     std::vector<T> a(n), b(n);
-    for (auto &i : a)
-        i = rand() % 1024;
-    for (auto &i : b)
-        i = rand() % 1024;
+    if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>){
+        hpx::generate(hpx::execution::par, a.begin(), a.end(), gen);
+    }
+    else
+    {
+        hpx::generate(hpx::execution::seq, a.begin(), a.end(), gen);
+    }
+    if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>){
+        hpx::generate(hpx::execution::par, b.begin(), b.end(), gen);
+    }
+    else
+    {
+        hpx::generate(hpx::execution::seq, b.begin(), b.end(), gen);
+    }
     
     
     auto begin_ = hpx::util::make_zip_iterator(
