@@ -5,13 +5,18 @@ do
     dir_name=$(dirname $dir)
     echo $dir_name
     cd $dir_name
-        rm -rf build
-        mkdir -p build
-        cd build
-            cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release > /dev/null
-            ninja
-        cd ..
-        build/exe $SIMD_END $SIMD_CORES > /dev/null
+        if [ -d "plots" ]; then
+            echo "plots for $dirname already exists!"
+        else
+            echo "building $dirname"
+            rm -rf build
+            mkdir -p build
+            cd build
+                cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release > /dev/null
+                ninja
+            cd ..
+            build/exe $SIMD_END $SIMD_CORES > /dev/null
+        fi
     cd $cwd_
 done
 python3 generate_plots.py
