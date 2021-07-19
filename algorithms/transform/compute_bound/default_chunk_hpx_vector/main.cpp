@@ -11,7 +11,7 @@
 #include <cmath>
 #include <experimental/simd>
 
-int threads;
+std::size_t threads;
 
 
 // INCLUDE COMPUTE KERNEL

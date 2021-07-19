@@ -11,58 +11,55 @@
 #include <cmath>
 #include <experimental/simd>
 
-int threads;
+std::size_t threads;
 
-using std::sin;
-using std::cos;
-using std::experimental::sin;
-using std::experimental::cos;
-
-// Actual test function object
 struct test_t
 {    
     template <typename T>
-    T operator()(T &x)
+    T operator()(T &x, T &y)
     {
-        return x + 42;
+        return 5 * x + y;
     }
 } test_{};
-
-#define SIMD_TEST_WITH_FLOAT
-#define SIMD_TEST_WITH_DOUBLE
-
 
 template <typename ExPolicy, typename T, typename Gen>
 auto test(ExPolicy policy, std::size_t n, Gen gen)
 {  
-    using executor_type = hpx::compute::host::block_executor<>;
     using allocator_type = hpx::compute::host::block_allocator<T>;
+    using executor_type = hpx::compute::host::block_executor<>;
 
     auto numa_domains = hpx::compute::host::numa_domains();
     allocator_type alloc(numa_domains);
     executor_type executor(numa_domains);
 
     hpx::compute::vector<T, allocator_type> nums(n, 0.0, alloc),
-                                            nums2(n, 0.0, alloc);
+                                            nums2(n, 0.0, alloc),
+                                            nums3(n, 0.0, alloc);
+
     if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>){
         hpx::generate(hpx::execution::par.on(executor), nums.begin(), nums.end(), gen);
+        hpx::generate(hpx::execution::par.on(executor), nums2.begin(), nums2.end(), gen);
     }
     else
     {
         hpx::generate(hpx::execution::seq, nums.begin(), nums.end(), gen);
+        hpx::generate(hpx::execution::seq, nums2.begin(), nums2.end(), gen);
     }
-    
+
     auto t1 = std::chrono::high_resolution_clock::now();
-        if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>){
-        hpx::transform(policy.on(executor),
-            nums.begin(), nums.end(), nums2.begin(),
-            test_);
+        if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>)
+        {
+            hpx::transform(policy.on(executor), nums.begin(), nums.end(),
+                nums2.begin(), 
+                nums3.begin(),
+                test_);
         }
         else
         {
-        hpx::transform(policy,
-            nums.begin(), nums.end(), nums2.begin(),
-            test_);
+            hpx::transform(policy, nums.begin(), nums.end(),
+                nums2.begin(), 
+                nums3.begin(),
+                test_);
         }
     auto t2 = std::chrono::high_resolution_clock::now();
 

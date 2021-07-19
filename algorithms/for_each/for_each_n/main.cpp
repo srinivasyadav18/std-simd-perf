@@ -11,7 +11,7 @@
 #include <cmath>
 #include <experimental/simd>
 
-int threads;
+std::size_t threads;
 
 using std::sin;
 using std::cos;
@@ -24,7 +24,8 @@ struct test_t
     template <typename T>
     void operator()(T &x)
     {
-        x = 5 * sin(x) + 6 * cos(x);
+        for (int i = 0; i < 100; i++)
+            x = 5 * sin(x) + 6 * cos(x);
     }
 } test_{};
 

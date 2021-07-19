@@ -12,7 +12,7 @@
 #include <experimental/simd>
 #include <random>
 
-int threads;
+std::size_t threads;
 
 #define SIMD_TEST_WITH_INT
 #define SIMD_TEST_WITH_FLOAT

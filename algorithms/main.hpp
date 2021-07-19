@@ -10,6 +10,7 @@
 #include <cmath>
 #include <experimental/simd>
 #include <random>
+#include <filesystem>
 
 template <typename ExPolicy, typename T, typename Gen>
 auto test3(ExPolicy policy, std::size_t iterations, std::size_t n, Gen gen)
@@ -101,7 +102,7 @@ struct gen_double_t{
 
 int hpx_main(hpx::program_options::variables_map& vm)
 {
-    system("rm -rf plots && mkdir -p plots");
+    std::filesystem::create_directory("plots");
     threads = hpx::get_os_thread_count();
     std::uint64_t const iterations = vm["iterations"].as<std::uint64_t>();
     std::uint64_t const start = vm["start"].as<std::uint64_t>();
@@ -110,7 +111,6 @@ int hpx_main(hpx::program_options::variables_map& vm)
     #if defined (SIMD_TEST_WITH_INT)
         test4<int, gen_int_t>("int", start, end, iterations, gen_int);
     #endif
-
 
     #if defined (SIMD_TEST_WITH_FLOAT)
         test4<float, gen_float_t>("float", start, end, iterations, gen_float);

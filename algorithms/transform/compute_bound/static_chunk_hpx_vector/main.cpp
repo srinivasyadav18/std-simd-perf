@@ -11,7 +11,7 @@
 #include <cmath>
 #include <experimental/simd>
 
-int threads;
+std::size_t threads;
 
 // INCLUDE COMPUTE KERNEL
 //----------------------------------
@@ -44,7 +44,7 @@ auto test(ExPolicy policy, std::size_t n, Gen gen)
     }
     
     // STATIC CHUNK SIZE
-    hpx::execution::static_chunk_size cs(((int)n)/threads);
+    hpx::execution::static_chunk_size cs(n/threads);;
     
     auto t1 = std::chrono::high_resolution_clock::now();
         if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>)
