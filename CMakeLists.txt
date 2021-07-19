@@ -17,13 +17,11 @@ function(add_simd_test target)
     set(CORES)
     if(${SIMD_CORES})
         set(CORES "--hpx:threads=${SIMD_CORES}")
-        message("Added extra args : ${CORES}")
     endif()
 
     set(END)
     if(${SIMD_END})
         set(END "--end=${SIMD_END}")
-        message("Added extra args : ${END}")
     endif()
 
     add_test(NAME ${target}_test COMMAND ${target} ${CORES} ${END})
