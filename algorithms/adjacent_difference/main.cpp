@@ -51,6 +51,8 @@ auto test(ExPolicy policy, std::size_t n, Gen gen)
         }
     auto t2 = std::chrono::high_resolution_clock::now();
 
+    std::cout << hpx::count(hpx::execution::simdpar, nums2.begin(), nums2.end(), gen());
+
     std::chrono::duration<double> diff = t2 - t1;
     return diff.count();
 }

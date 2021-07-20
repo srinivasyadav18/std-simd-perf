@@ -40,20 +40,23 @@ auto test(ExPolicy policy, std::size_t n, Gen gen)
     std::vector<T> series(32);
     std::generate(series.begin(), series.end(), gen);
     
+    auto iter = nums.begin();
     auto t1 = std::chrono::high_resolution_clock::now();
         if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>){
-            hpx::find_first_of(policy.on(executor), 
+            iter = hpx::find_first_of(policy.on(executor), 
                                 nums.begin(), nums.end(), 
                                 series.begin(), series.end());
         }
         else
         {
-            hpx::find_first_of(policy, 
+            iter = hpx::find_first_of(policy, 
                                 nums.begin(), nums.end(), 
                                 series.begin(), series.end());
         }
     auto t2 = std::chrono::high_resolution_clock::now();
 
+    if (iter != nums.end())
+        std::cout << *iter;
     std::chrono::duration<double> diff = t2 - t1;
     return diff.count();
 }
