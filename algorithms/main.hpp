@@ -18,7 +18,7 @@ auto test3(ExPolicy policy, std::size_t iterations, std::size_t n, Gen gen)
     double avg_time = 0.0;
     for (std::size_t i = 0; i < iterations; i++)
     {
-        avg_time += test<ExPolicy, T, Gen>(policy, n, gen);
+        avg_time += test<ExPolicy, T, Gen>(policy, n, Gen{});
     }
     avg_time /= (double) iterations;
     return avg_time;
