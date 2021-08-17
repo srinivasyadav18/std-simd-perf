@@ -42,13 +42,13 @@ auto test(ExPolicy policy, std::size_t n, Gen gen)
         if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>){
             iter = hpx::find_if_not(policy.on(executor), 
                                 nums.begin(), nums.end(), 
-                                [](auto const& x) { return x < 42; });
+                                [](auto const& x) { return !(x < 1 && x > 1024); });
         }
         else
         {
             iter = hpx::find_if_not(policy, 
                                 nums.begin(), nums.end(), 
-                                [](auto const& x) { return x < 42; });
+                                [](auto const& x) { return !(x < 1 && x > 1024); });
         }
     auto t2 = std::chrono::high_resolution_clock::now();
 

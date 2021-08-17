@@ -33,11 +33,15 @@ auto test(ExPolicy policy, std::size_t n, Gen gen)
     T val = 42;
     auto t1 = std::chrono::high_resolution_clock::now();
         if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>){
-            hpx::generate(policy.on(executor), nums.begin(), nums.end(), [val](){return val;});
+            hpx::generate(policy.on(executor), 
+                    nums.begin(), nums.end(), 
+                    [val](){return val * val + val;});
         }
         else
         {
-            hpx::generate(policy, nums.begin(), nums.end(), [val](){return val;});
+            hpx::generate(policy, 
+                    nums.begin(), nums.end(), 
+                    [val](){return val * val + val;});
         }
     auto t2 = std::chrono::high_resolution_clock::now();
 

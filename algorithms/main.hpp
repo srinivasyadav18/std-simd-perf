@@ -74,9 +74,8 @@ void test4(std::string type,
     fout.close();
 }
 
-std::random_device rnd_device;
-std::mt19937 mersenne_engine {rnd_device()};
 struct gen_int_t{
+    std::mt19937 mersenne_engine {42};
     std::uniform_int_distribution<int> dist_int {1, 1024};
     auto operator()()
     {
@@ -85,6 +84,7 @@ struct gen_int_t{
 } gen_int{};
 
 struct gen_float_t{
+    std::mt19937 mersenne_engine {42};
     std::uniform_real_distribution<float> dist_float {1, 1024};
     auto operator()()
     {
@@ -93,6 +93,7 @@ struct gen_float_t{
 } gen_float{};
 
 struct gen_double_t{
+    std::mt19937 mersenne_engine {42};
     std::uniform_real_distribution<double> dist_double {1, 1024};
     auto operator()()
     {
