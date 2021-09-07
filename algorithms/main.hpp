@@ -41,7 +41,6 @@ void test4(std::string type,
     auto& par_pol = hpx::execution::par;
     auto& simdpar_pol = hpx::execution::simdpar;
 
-    std::size_t buffer = 0;
     fout << "n,lane,threads,seq,simd,par,simdpar\n";
     for (std::size_t i = start; i <= end; i++)
     {
@@ -52,23 +51,17 @@ void test4(std::string type,
             << threads
             << ","
             << test3<decltype(seq_pol), T, Gen>(
-                seq_pol, iterations/2, std::pow(2, i), gen) 
+                seq_pol, iterations, std::pow(2, i), gen) 
             << ","
             << test3<decltype(simd_pol), T, Gen>(
                 simd_pol, iterations, std::pow(2, i), gen)
             << ","
             << test3<decltype(par_pol), T, Gen>(
-                par_pol, iterations * 2, std::pow(2, i), gen) 
+                par_pol, iterations, std::pow(2, i), gen) 
             << ","
             << test3<decltype(simdpar_pol), T, Gen>(
-                simdpar_pol, iterations * 4, std::pow(2, i), gen) 
+                simdpar_pol, iterations, std::pow(2, i), gen) 
             << "\n";
-        buffer++;
-        if (buffer % 5 == 0) 
-        {
-            buffer = 0;
-            iterations /= 2;
-        }
         fout.flush();
     }
     fout.close();
@@ -94,7 +87,7 @@ struct gen_float_t{
 
 struct gen_double_t{
     std::mt19937 mersenne_engine {42};
-    std::uniform_real_distribution<double> dist_double {1, 1024};
+    std::uniform_real_distribution<float> dist_double {1, 1024};
     auto operator()()
     {
         return dist_double(mersenne_engine);
@@ -105,9 +98,9 @@ int hpx_main(hpx::program_options::variables_map& vm)
 {
     std::filesystem::create_directory("plots");
     threads = hpx::get_os_thread_count();
-    std::uint64_t const iterations = vm["iterations"].as<std::uint64_t>();
-    std::uint64_t const start = vm["start"].as<std::uint64_t>();
-    std::uint64_t const end = vm["end"].as<std::uint64_t>();
+    std::uint64_t const iterations = 1;
+    std::uint64_t const start = 27;
+    std::uint64_t const end = 27;
 
     #if defined (SIMD_TEST_WITH_INT)
         test4<int, gen_int_t>("int", start, end, iterations, gen_int);

@@ -1,5 +1,6 @@
 set(subdirs
     mandel
+    mandel_std
 )
 
 foreach(subdir ${subdirs})

@@ -12,6 +12,8 @@
 #include <experimental/simd>
 
 std::size_t threads;
+#define SIMD_TEST_WITH_FLOAT
+#define SIMD_TEST_WITH_DOUBLE
 
 struct test_t
 {    
@@ -35,6 +37,7 @@ auto test(ExPolicy policy, std::size_t n, Gen gen)
     hpx::compute::vector<T, allocator_type> nums(n, 0.0, alloc),
                                             nums2(n, 0.0, alloc),
                                             nums3(n, 0.0, alloc);
+
 
     if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>){
         hpx::generate(hpx::execution::par.on(executor), nums.begin(), nums.end(), gen);
@@ -69,4 +72,4 @@ auto test(ExPolicy policy, std::size_t n, Gen gen)
 
 
 // INCLUDE MAIN FUNCTION
-#include "../../main.hpp"
+#include "../../../main.hpp"

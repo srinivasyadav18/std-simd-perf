@@ -1,0 +1,1 @@
+add_simd_test(transform_memory_bound_default_chunk_hpx_vector)
