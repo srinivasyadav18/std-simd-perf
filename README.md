@@ -19,7 +19,7 @@
 * Build and install hpx. `cmake --build ./hpx_build` `cmake --install ./hpx_build`
 
 ### RUNNING BENCHMARKS
-* clone `std-simd-perf` repo. `git clone --single-branch -b master_v5 https://github.com/srinivasyadav18/std-simd-perf.git`
+* clone `std-simd-perf` repo. `git clone --single-branch -b master_v6 https://github.com/srinivasyadav18/std-simd-perf.git`
 * create a dir for benchmarks `mkdir benchmarks`
 * build the project `HPX_DIR=./hpx_install cmake -GNinja -S ./std-simd-perf -B ./benchmarks -DCMAKE_BUILD_TYPE=Release -DSIMD_CORES=20 -DSIMD_END=23`
 * build benchmarks `cmake --build ./benchmarks`
