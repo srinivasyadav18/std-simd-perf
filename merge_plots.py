@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 img_arr = []
 
 height = 0
-for dir in ['simd_math_tests', 'algorithms', 'roofline']:
+for dir in ['simd_math_tests', 'algorithms']:
     path = dir + '/plots.png'
     img_arr.append(Image.open(path))
 

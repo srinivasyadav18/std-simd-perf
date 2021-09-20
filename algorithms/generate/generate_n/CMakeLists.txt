@@ -1,0 +1,1 @@
+add_simd_test(generate_n)

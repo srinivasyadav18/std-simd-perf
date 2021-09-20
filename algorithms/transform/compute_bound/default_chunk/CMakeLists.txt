@@ -1,0 +1,1 @@
+add_simd_test(transform_compute_bound_default_chunk)

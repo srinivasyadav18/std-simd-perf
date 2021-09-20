@@ -1,13 +1,9 @@
-cmake_minimum_required(VERSION 3.17)
-project(examples VERSION 1.0.0)
-
-find_package(HPX REQUIRED)
-
-add_hpx_executable(exe
-    ESSENTIAL
-    SOURCES main.cpp
-    COMPONENT_DEPENDENCIES iostreams
+set(subdirs 
+    compute_bound
+    memory_bound
 )
 
-target_compile_options(exe PUBLIC "-march=native" "-fno-tree-vectorize")
-target_link_libraries(exe PUBLIC HPX::hpx HPX::iostreams_component)
+foreach(subdir ${subdirs})
+    message("Adding subdir ${subdir}")
+    add_subdirectory(${subdir})
+endforeach(subdir)

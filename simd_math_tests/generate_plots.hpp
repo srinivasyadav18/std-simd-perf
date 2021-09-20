@@ -6,6 +6,7 @@
 #include <hpx/modules/timing.hpp>
 #include <hpx/parallel/util/loop.hpp>
 
+#include <limits>
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -17,15 +18,19 @@
 #include <type_traits>
 #include <vector>
 #include <fstream>
+#include <random>
 
 struct test_t;
 
 template <typename ExPolicy, typename T>
 auto test(ExPolicy policy, std::size_t n)
-{  
+{   
+    std::mt19937 mersenne_engine {42};
+    std::uniform_real_distribution<T> dist {0, 1024};
+
     std::vector<T> nums(n);
     for (auto &i : nums)
-        i = rand() % 1024;
+        i = dist(mersenne_engine);
 
     auto t1 = std::chrono::high_resolution_clock::now();
         hpx::for_each(policy, nums.begin(), nums.end(), test_t{});

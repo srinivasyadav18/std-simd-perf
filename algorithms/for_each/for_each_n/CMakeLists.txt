@@ -1,0 +1,1 @@
+add_simd_test(for_each_n)

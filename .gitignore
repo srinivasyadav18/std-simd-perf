@@ -1,6 +1,6 @@
-*.png
+# *.png
 build
-plots
+# plots
 dram.txt
 l1.txt
 l2.txt
