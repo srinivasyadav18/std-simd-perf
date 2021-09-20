@@ -1,7 +1,7 @@
 # std-simd-perf
 
 ### SIMD BENCHMARKS WITH HPX
-This repository contains benchmarks for various artficial codes (std template library algorithms), real world kernels, mathematical functions (c++ <cmath> header).
+This repository contains benchmarks for various artficial codes (std template library algorithms), real world kernels, mathematical functions (c++ cmath header).
  
  There are multiple branches each running on different architecure.
  
