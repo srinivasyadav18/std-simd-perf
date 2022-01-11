@@ -24,7 +24,7 @@ This repository contains benchmarks for various artficial codes (std template li
 #### HPX INSTALLATION
 * create a workdir `mkdir workdir`
 * change current workind director to workdir `cd workdir`
-* clone hpx repo `git clone --single-branch -b simd_algorithms_v3 https://github.com/srinivasyadav18/hpx.git`
+* clone hpx repo `git clone --single-branch -b master https://github.com/STEllAR-GROUP/hpx.git`
 * create build and install dirs for hpx installation `mkdir hpx_build hpx_install`
 * Run cmake for `hpx` build. `cmake -GNinja -S ./hpx -B ./hpx_build -DCMAKE_INSTALL_PREFIX=./hpx_install -DCMAKE_BUILD_TYPE=Release -DHPX_WITH_CXX20=ON -DHPX_WITH_FETCH_ASIO=ON`
 * Build and install hpx. `cmake --build ./hpx_build` `cmake --install ./hpx_build`
