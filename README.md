@@ -21,16 +21,18 @@ This repository contains benchmarks for various artficial codes (std template li
 
 ## HOW TO INSTALL?? (on unix-like)
 
-#### HPX INSTALLATION
+#### HPX and HPX Local INSTALLATION
 * create a workdir `mkdir workdir`
 * change current workind director to workdir `cd workdir`
 * clone hpx repo `git clone --single-branch -b master https://github.com/STEllAR-GROUP/hpx.git`
-* create build and install dirs for hpx installation `mkdir hpx_build hpx_install`
-* Run cmake for `hpx` build. `cmake -GNinja -S ./hpx -B ./hpx_build -DCMAKE_INSTALL_PREFIX=./hpx_install -DCMAKE_BUILD_TYPE=Release -DHPX_WITH_CXX20=ON -DHPX_WITH_FETCH_ASIO=ON`
+* create build and install dirs for hpx installation `mkdir hpx_build hpx_install hpx_local_build hpx_local_install`
+* Run cmake for `hpx` build. `cmake -GNinja -S ./hpx -B ./hpx_build -DCMAKE_INSTALL_PREFIX=./hpx_install -DCMAKE_BUILD_TYPE=Release -DHPX_WITH_CXX_STANDARD=20 -DHPX_WITH_FETCH_ASIO=ON -DHPXLocal_WITH_CXX_STANDARD=20 -DHPX_WITH_MODULES_AS_STATIC_LIBRARIES=On`
+* Run cmake for `hpx-local` build. `cmake -GNinja -S ./hpx-local -B ./hpx_local_build -DCMAKE_INSTALL_PREFIX=./hpx_local_install -DCMAKE_BUILD_TYPE=Release -DHPXLocal_WITH_FETCH_ASIO=ON -DHPXLocal_WITH_CXX_STANDARD=20`
 * Build and install hpx. `cmake --build ./hpx_build` `cmake --install ./hpx_build`
+* Build and install hpx-local. `cmake --build ./hpx_local_build` `cmake --install ./hpx_local_build`
 
 #### RUNNING BENCHMARKS
-* clone `std-simd-perf` repo. `git clone --single-branch -b master_v6 https://github.com/srinivasyadav18/std-simd-perf.git`
+* clone `std-simd-perf` repo. `git clone --single-branch -b master_v7 https://github.com/srinivasyadav18/std-simd-perf.git`
 * create a dir for benchmarks `mkdir benchmarks`
 * build the project `HPX_DIR=./hpx_install cmake -GNinja -S ./std-simd-perf -B ./benchmarks -DCMAKE_BUILD_TYPE=Release -DSIMD_CORES=20 -DSIMD_END=23`
 * build benchmarks `cmake --build ./benchmarks`
