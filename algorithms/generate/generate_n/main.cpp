@@ -18,6 +18,15 @@ std::size_t threads;
 #define SIMD_TEST_WITH_FLOAT
 #define SIMD_TEST_WITH_DOUBLE
 
+struct foo
+{
+    template <typename T>
+    T operator()()
+    {
+        return T(10);
+    }
+};
+
 template <typename ExPolicy, typename T, typename Gen>
 auto test(ExPolicy policy, std::size_t n, Gen gen)
 {  
@@ -30,16 +39,27 @@ auto test(ExPolicy policy, std::size_t n, Gen gen)
 
     hpx::compute::vector<T, allocator_type> nums(n, 0.0, alloc);
     
-    T val = 42;
+    foo obj;
     auto t1 = std::chrono::high_resolution_clock::now();
-        if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>){
+        if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>
+        && hpx::is_vectorpack_execution_policy_v<ExPolicy> ){
             hpx::generate_n(policy.on(executor), nums.begin(), nums.size(),
-                [val](){return val * val + val;});
+                obj);
+        }
+        else if constexpr (hpx::is_parallel_execution_policy_v<ExPolicy>
+            && !hpx::is_vectorpack_execution_policy_v<ExPolicy>){
+            hpx::generate_n(policy.on(executor), nums.begin(), nums.size(),
+                [](){return 10;});
+        }
+        else if constexpr (!hpx::is_parallel_execution_policy_v<ExPolicy>
+            && hpx::is_vectorpack_execution_policy_v<ExPolicy>){
+            hpx::generate_n(policy.on(executor), nums.begin(), nums.size(),
+                obj);
         }
         else
         {
             hpx::generate_n(policy, nums.begin(), nums.size(), 
-                [val](){return val * val + val;});
+                [](){return 10;});
         }
     auto t2 = std::chrono::high_resolution_clock::now();
 

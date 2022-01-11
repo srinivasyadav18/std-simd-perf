@@ -82,12 +82,12 @@ def plot_grain_size(policies):
     plt.tight_layout()
     plt.savefig(os.path.join(plots_path, f'{type_}_grain_size.png'))
 
-policies = ['seq', 'simd', 'par', 'simdpar']
+policies = ['seq', 'simd', 'par', 'par_simd']
 policy_colors = {
                 'seq' : 'grey',
                 'simd' :  'orange', 
                 'par' : 'blue',
-                'simdpar' : 'red'
+                'par_simd' : 'red'
                 }
 types = ['int', 'float', 'double']
 types_sizes = {

@@ -1,11 +1,11 @@
 set(subdirs
     adjacent_difference
-    adjacent_find
+    # adjacent_find
     all_any_none 
     copy
     count
     fill
-    find
+    # find
     for_each
     generate
     transform

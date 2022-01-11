@@ -39,9 +39,9 @@ void test4(std::string type,
     auto& seq_pol = hpx::execution::seq;
     auto& simd_pol = hpx::execution::simd;
     auto& par_pol = hpx::execution::par;
-    auto& simdpar_pol = hpx::execution::simdpar;
+    auto& par_simd_pol = hpx::execution::par_simd;
 
-    fout << "n,lane,threads,seq,simd,par,simdpar\n";
+    fout << "n,lane,threads,seq,simd,par,par_simd\n";
     for (std::size_t i = start; i <= end; i++)
     {
         fout << i 
@@ -59,8 +59,8 @@ void test4(std::string type,
             << test3<decltype(par_pol), T, Gen>(
                 par_pol, iterations, std::pow(2, i), gen) 
             << ","
-            << test3<decltype(simdpar_pol), T, Gen>(
-                simdpar_pol, iterations, std::pow(2, i), gen) 
+            << test3<decltype(par_simd_pol), T, Gen>(
+                par_simd_pol, iterations, std::pow(2, i), gen) 
             << "\n";
         fout.flush();
     }

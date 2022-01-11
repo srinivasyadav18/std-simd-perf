@@ -209,44 +209,44 @@ int hpx_main()
     float y_min = -1.0;
     float y_max = 1.0;
 
-    double avg_seq = 0.0, avg_simd = 0.0, avg_par = 0.0, avg_simdpar = 0.0;
+    double avg_seq = 0.0, avg_simd = 0.0, avg_par = 0.0, avg_par_simd = 0.0;
     double iters = 10;
     for (int i = 0; i < iters; i++)
     {
         auto t1 = mandel(hpx::execution::seq, "sequential", x_min, x_max, y_min, y_max, width, height, 2000);
         auto t2 = mandel(hpx::execution::simd, "simd", x_min, x_max, y_min, y_max, width, height, 2000);
         auto t3 = mandel(hpx::execution::par, "par", x_min, x_max, y_min, y_max, width, height, 2000);
-        auto t4 = mandel(hpx::execution::simdpar, "par_simd", x_min, x_max, y_min, y_max, width, height, 2000);
+        auto t4 = mandel(hpx::execution::par_simd, "par_simd", x_min, x_max, y_min, y_max, width, height, 2000);
         avg_seq += t1;
         avg_simd += t2;
         avg_par += t3;
-        avg_simdpar += t4;
+        avg_par_simd += t4;
     }
 
     avg_seq /= iters;
     avg_simd /= iters;
     avg_par /= iters;
-    avg_simdpar /= iters;
+    avg_par_simd /= iters;
 
     std::cout << "seq time : " << avg_seq << std::endl;
     std::cout << "simd time : " << avg_simd << std::endl;
     std::cout << "par time : " << avg_par << std::endl;
-    std::cout << "simdpar time : " << avg_simdpar << std::endl;
+    std::cout << "par_simd time : " << avg_par_simd << std::endl;
     std::cout << "==============================\n";
     std::cout << "Threads : " << hpx::get_os_thread_count() << std::endl;
     std::cout << "Vector Pack Size : " << lane << std::endl;
     std::cout << "avg SIMD Speed Up : " << avg_seq/avg_simd << std::endl;
     std::cout << "avg PAR Speed Up : " << avg_seq/avg_par << std::endl;
-    std::cout << "avg SIMDPAR Speed Up : " << avg_seq/avg_simdpar << std::endl;
+    std::cout << "avg par_simd Speed Up : " << avg_seq/avg_par_simd << std::endl;
 
-    fout << "n,lane,threads,seq,simd,par,simdpar\n";
+    fout << "n,lane,threads,seq,simd,par,par_simd\n";
     fout << n << "," 
         << lane << "," 
         << threads << "," 
         << avg_seq << ","
         << avg_simd << ","
         << avg_par << ","
-        << avg_simdpar << "\n";
+        << avg_par_simd << "\n";
     fout.close();
     return hpx::finalize();
 }
