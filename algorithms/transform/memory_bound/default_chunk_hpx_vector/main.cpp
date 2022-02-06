@@ -13,14 +13,14 @@
 
 std::size_t threads;
 #define SIMD_TEST_WITH_FLOAT
-#define SIMD_TEST_WITH_DOUBLE
+// #define SIMD_TEST_WITH_DOUBLE
 
 struct test_t
 {    
     template <typename T>
     T operator()(T &x, T &y)
     {
-        return 5 * x + y;
+        return 5.0f * x + y;
     }
 } test_{};
 

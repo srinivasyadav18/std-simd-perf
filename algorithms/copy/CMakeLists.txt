@@ -1,7 +1,7 @@
 set(subdirs 
     copy
     copy_n
-    copy_naive
+    # copy_naive
 )
 
 foreach(subdir ${subdirs})

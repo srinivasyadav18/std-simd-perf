@@ -9,8 +9,9 @@
 #include <vector>
 #include <fstream>
 #include <cmath>
-#include <experimental/simd>
 #include <random>
+
+#include <eve/eve.hpp>
 
 std::size_t threads;
 

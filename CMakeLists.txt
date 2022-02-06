@@ -29,7 +29,7 @@ endfunction()
 
 set(subdirs 
     algorithms 
-    simd_math_tests
+    # simd_math_tests
     kernels
 )
 

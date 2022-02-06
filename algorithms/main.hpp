@@ -8,9 +8,10 @@
 #include <vector>
 #include <fstream>
 #include <cmath>
-#include <experimental/simd>
 #include <random>
 #include <filesystem>
+
+#include <eve/eve.hpp>
 
 template <typename ExPolicy, typename T, typename Gen>
 auto test3(ExPolicy policy, std::size_t iterations, std::size_t n, Gen gen)
@@ -34,7 +35,7 @@ void test4(std::string type,
                             std::string(".csv");
     std::ofstream fout(file_name.c_str());
 
-    static constexpr size_t lane = std::experimental::native_simd<T>::size();
+    static constexpr size_t lane = eve::wide<T>::size();
 
     auto& seq_pol = hpx::execution::seq;
     auto& simd_pol = hpx::execution::simd;
@@ -51,16 +52,16 @@ void test4(std::string type,
             << threads
             << ","
             << test3<decltype(seq_pol), T, Gen>(
-                seq_pol, iterations, std::pow(2, i), gen) 
+                seq_pol, 7 - (i/5), std::pow(2, i), gen) 
             << ","
             << test3<decltype(simd_pol), T, Gen>(
-                simd_pol, iterations, std::pow(2, i), gen)
+                simd_pol, 8 - (i/5), std::pow(2, i), gen)
             << ","
             << test3<decltype(par_pol), T, Gen>(
-                par_pol, iterations, std::pow(2, i), gen) 
+                par_pol, 9 - (i/5), std::pow(2, i), gen) 
             << ","
             << test3<decltype(par_simd_pol), T, Gen>(
-                par_simd_pol, iterations, std::pow(2, i), gen) 
+                par_simd_pol, 10 - (i/5), std::pow(2, i), gen) 
             << "\n";
         fout.flush();
     }
@@ -99,7 +100,7 @@ int hpx_main(hpx::program_options::variables_map& vm)
     std::filesystem::create_directory("plots");
     threads = hpx::get_os_thread_count();
     std::uint64_t const iterations = 1;
-    std::uint64_t const start = 27;
+    std::uint64_t const start = 5;
     std::uint64_t const end = 27;
 
     #if defined (SIMD_TEST_WITH_INT)

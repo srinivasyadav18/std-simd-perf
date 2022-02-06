@@ -9,14 +9,10 @@
 #include <vector>
 #include <fstream>
 #include <cmath>
-#include <experimental/simd>
 
 std::size_t threads;
 
-using std::sin;
-using std::cos;
-using std::experimental::sin;
-using std::experimental::cos;
+#include <eve/module/math.hpp>
 
 // Actual test function object
 struct test_t
@@ -25,7 +21,7 @@ struct test_t
     void operator()(T &x)
     {
         for (int i = 0; i < 100; i++)
-            x = 5 * sin(x) + 6 * cos(x);
+            x = 5.0f * eve::sin(x) + 6.0f * eve::cos(x);
     }
 } test_{};
 

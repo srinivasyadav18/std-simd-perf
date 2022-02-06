@@ -1,9 +1,5 @@
-using std::sin;
-using std::cos;
-using std::experimental::sin;
-using std::experimental::cos;
-
 // Actual test function object
+
 struct test_t
 {
     template <typename T>

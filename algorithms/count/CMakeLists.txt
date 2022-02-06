@@ -1,7 +1,7 @@
 set(subdirs 
     count
     count_if
-    count_naive
+    # count_naive
 )
 
 foreach(subdir ${subdirs})

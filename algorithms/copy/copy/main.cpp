@@ -9,7 +9,6 @@
 #include <vector>
 #include <fstream>
 #include <cmath>
-#include <experimental/simd>
 #include <random>
 
 std::size_t threads;

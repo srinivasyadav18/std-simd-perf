@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <numeric>
 #include <utility>
-#include <experimental/simd>
+#include <eve/function/logical_xor.hpp>
 #include <chrono>
 #include <execution>
 
@@ -43,10 +43,9 @@ struct get_mask_type
 };
 
 template <typename T>
-struct get_mask_type<T, typename std::enable_if_t<std::experimental::is_simd_v<T>>>
+struct get_mask_type<T, typename std::enable_if_t<eve::is_simd_value<T>{}>>
 {
-    using type = std::experimental::simd_mask<typename T::value_type,
-                                            typename T::abi_type>;
+    using type = eve::logical<T>;
 };
 
 ////////////////////////////////////////////////////////////////////
@@ -80,19 +79,6 @@ struct get_simd_policy<ExPolicy,
 };
 
 ////////////////////////////////////////////////////////////////////
-inline constexpr bool all_of_simd(bool msk)
-{
-    return msk;
-}
-
-template <typename Mask>
-inline constexpr std::enable_if_t<std::experimental::is_simd_mask_v<Mask>, bool>
-    all_of_simd(Mask const& msk)
-{
-    return std::experimental::all_of(msk);
-}
-
-////////////////////////////////////////////////////////////////////
 template <typename T>
 inline constexpr void mask_assign(bool msk, T &v, T val)
 {
@@ -100,10 +86,10 @@ inline constexpr void mask_assign(bool msk, T &v, T val)
 }
 
 template <typename Mask, typename Vector, typename T>
-inline constexpr std::enable_if_t<std::experimental::is_simd_mask_v<Mask>>
+inline constexpr std::enable_if_t<eve::is_logical_v<Mask>>
 mask_assign(const Mask& msk, Vector& v, T val)
 {
-    where(msk, v) = val;
+    v = eve::if_else(msk, Vector(val), v);
 }
 
 template <typename ExPolicy>
@@ -149,11 +135,11 @@ auto mandel(ExPolicy policy, const std::string& fname,
                 using Vector = std::decay_t<decltype(j)>;
                 using Mask = get_mask_type<Vector>::type;
                 
-                const Vector x = x_min + (j) * dx;
-                const Vector y = y_min + (i) * dy;
+                const Vector x = x_min + (j) * Vector(dx);
+                const Vector y = y_min + (i) * Vector(dy);
                 const Vector four(4), two(2), iters(iterations), rgb(255);
 
-                Vector count = 0;
+                Vector count(0);
                 Mask msk(0);
 
                 Vector zr = x;
@@ -164,12 +150,12 @@ auto mandel(ExPolicy policy, const std::string& fname,
                     Vector i2 = zi * zi;
                     Mask curr_msk = (r2 + i2) > four;
 
-                    if (all_of_simd(curr_msk))
+                    if (hpx::parallel::traits::all_of(curr_msk))
                     {
-                        mask_assign(msk ^ curr_msk, count, k);
+                        mask_assign(eve::logical_xor(msk, curr_msk), count, k);
                         break;
                     }
-                    mask_assign(msk ^ curr_msk, count, k);
+                    mask_assign(eve::logical_xor(msk, curr_msk), count, k);
                     msk = curr_msk;
                     zi = two * zr * zi + y;
                     zr = r2 - i2 + x;
@@ -198,7 +184,7 @@ int hpx_main()
 
     threads = hpx::get_os_thread_count();
     std::cout << "Threads : " << threads << std::endl;
-    std::size_t lane = std::experimental::native_simd<float>::size();
+    std::size_t lane = eve::wide<float>::size();
 
     unsigned int width = 4096;
     unsigned int height = 4096;
@@ -210,7 +196,7 @@ int hpx_main()
     float y_max = 1.0;
 
     double avg_seq = 0.0, avg_simd = 0.0, avg_par = 0.0, avg_par_simd = 0.0;
-    double iters = 10;
+    double iters = 1;
     for (int i = 0; i < iters; i++)
     {
         auto t1 = mandel(hpx::execution::seq, "sequential", x_min, x_max, y_min, y_max, width, height, 2000);
