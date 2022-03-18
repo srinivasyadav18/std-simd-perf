@@ -1,8 +1,8 @@
 set(subdirs 
     default_chunk
     default_chunk_hpx_vector
-    static_chunk
-    static_chunk_hpx_vector
+    # static_chunk
+    # static_chunk_hpx_vector
 )
 
 foreach(subdir ${subdirs})

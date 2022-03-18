@@ -29,8 +29,8 @@ endfunction()
 
 set(subdirs 
     algorithms 
-    simd_math_tests
-    kernels
+    # simd_math_tests
+    # kernels
 )
 
 foreach(subdir ${subdirs})

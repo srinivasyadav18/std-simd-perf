@@ -1,13 +1,13 @@
 set(subdirs
-    adjacent_difference
+    # adjacent_difference
     # adjacent_find
-    all_any_none 
-    copy
-    count
-    fill
+    # all_any_none 
+    # copy
+    # count
+    # fill
     # find
     for_each
-    generate
+    # generate
     transform
 )
 

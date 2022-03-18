@@ -7,10 +7,18 @@
 #include <type_traits>
 #include <vector>
 #include <fstream>
-#include <cmath>
-#include <experimental/simd>
+// #include <cmath>
+
 #include <random>
 #include <filesystem>
+
+#if defined(HPX_HAVE_STD_EXPERIMENTAL_SIMD)
+    #include <experimental/simd>
+#endif
+
+#if defined(HPX_HAVE_EVE)
+    #include <eve/eve.hpp>
+#endif
 
 template <typename ExPolicy, typename T, typename Gen>
 auto test3(ExPolicy policy, std::size_t iterations, std::size_t n, Gen gen)
@@ -34,7 +42,9 @@ void test4(std::string type,
                             std::string(".csv");
     std::ofstream fout(file_name.c_str());
 
-    static constexpr size_t lane = std::experimental::native_simd<T>::size();
+
+    using V = hpx::parallel::traits::vector_pack_type<T>::type;
+    static constexpr size_t lane = hpx::parallel::traits::vector_pack_size<V>::value;
 
     auto& seq_pol = hpx::execution::seq;
     auto& simd_pol = hpx::execution::simd;
@@ -51,16 +61,16 @@ void test4(std::string type,
             << threads
             << ","
             << test3<decltype(seq_pol), T, Gen>(
-                seq_pol, iterations, std::pow(2, i), gen) 
+                seq_pol, 7 - (i/5), std::pow(2, i), gen) 
             << ","
             << test3<decltype(simd_pol), T, Gen>(
-                simd_pol, iterations, std::pow(2, i), gen)
+                simd_pol, 8 - (i/5), std::pow(2, i), gen)
             << ","
             << test3<decltype(par_pol), T, Gen>(
-                par_pol, iterations, std::pow(2, i), gen) 
+                par_pol, 9 - (i/5), std::pow(2, i), gen) 
             << ","
             << test3<decltype(par_simd_pol), T, Gen>(
-                par_simd_pol, iterations, std::pow(2, i), gen) 
+                par_simd_pol, 10 - (i/5), std::pow(2, i), gen) 
             << "\n";
         fout.flush();
     }
@@ -99,8 +109,8 @@ int hpx_main(hpx::program_options::variables_map& vm)
     std::filesystem::create_directory("plots");
     threads = hpx::get_os_thread_count();
     std::uint64_t const iterations = 1;
-    std::uint64_t const start = 27;
-    std::uint64_t const end = 27;
+    std::uint64_t const start = 5;
+    std::uint64_t const end = 22;
 
     #if defined (SIMD_TEST_WITH_INT)
         test4<int, gen_int_t>("int", start, end, iterations, gen_int);

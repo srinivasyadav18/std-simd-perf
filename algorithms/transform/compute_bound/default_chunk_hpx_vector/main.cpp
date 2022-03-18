@@ -8,8 +8,6 @@
 #include <type_traits>
 #include <vector>
 #include <fstream>
-#include <cmath>
-#include <experimental/simd>
 
 std::size_t threads;
 
