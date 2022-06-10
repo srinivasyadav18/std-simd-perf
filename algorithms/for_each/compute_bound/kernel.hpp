@@ -12,4 +12,4 @@ struct test_t
 } test_{};
 
 #define SIMD_TEST_WITH_FLOAT
-#define SIMD_TEST_WITH_DOUBLE
+// #define SIMD_TEST_WITH_DOUBLE

@@ -1,6 +1,6 @@
 set(subdirs 
     compute_bound
-    for_each_n
+    # for_each_n
     memory_bound
 )
 

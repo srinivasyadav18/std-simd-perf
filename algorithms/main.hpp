@@ -11,8 +11,6 @@
 #include <random>
 #include <filesystem>
 
-#include <eve/eve.hpp>
-
 template <typename ExPolicy, typename T, typename Gen>
 auto test3(ExPolicy policy, std::size_t iterations, std::size_t n, Gen gen)
 {
@@ -35,7 +33,8 @@ void test4(std::string type,
                             std::string(".csv");
     std::ofstream fout(file_name.c_str());
 
-    static constexpr size_t lane = eve::wide<T>::size();
+    using V = typename hpx::parallel::traits::vector_pack_type<T>::type;
+    static constexpr size_t lane = hpx::parallel::traits::vector_pack_size<V>::value;
 
     auto& seq_pol = hpx::execution::seq;
     auto& simd_pol = hpx::execution::simd;
@@ -45,25 +44,33 @@ void test4(std::string type,
     fout << "n,lane,threads,seq,simd,par,par_simd\n";
     for (std::size_t i = start; i <= end; i++)
     {
-        fout << i 
-            << ","
-            << lane
-            << ","
-            << threads
-            << ","
-            << test3<decltype(seq_pol), T, Gen>(
-                seq_pol, 7 - (i/5), std::pow(2, i), gen) 
-            << ","
-            << test3<decltype(simd_pol), T, Gen>(
-                simd_pol, 8 - (i/5), std::pow(2, i), gen)
-            << ","
-            << test3<decltype(par_pol), T, Gen>(
-                par_pol, 9 - (i/5), std::pow(2, i), gen) 
-            << ","
-            << test3<decltype(par_simd_pol), T, Gen>(
-                par_simd_pol, 10 - (i/5), std::pow(2, i), gen) 
-            << "\n";
-        fout.flush();
+        double offset = 0.0;
+        for (std::size_t chunk = std::pow(2, i); chunk < std::pow(2, i+1); chunk += (chunk/4))
+        {
+            for (std::size_t iter = 0; iter < iterations; iter++)
+            {
+                fout << double(double(i) + offset)
+                    << ","
+                    << lane
+                    << ","
+                    << threads
+                    << ","
+                    << test<decltype(seq_pol), T, Gen>(
+                        seq_pol, chunk, gen) 
+                    << ","
+                    << test<decltype(simd_pol), T, Gen>(
+                        simd_pol, chunk, gen)
+                    << ","
+                    << test<decltype(par_pol), T, Gen>(
+                        par_pol, chunk, gen) 
+                    << ","
+                    << test<decltype(par_simd_pol), T, Gen>(
+                        par_simd_pol, chunk, gen) 
+                    << "\n";
+                fout.flush();
+            }
+            offset += 0.25;
+        }
     }
     fout.close();
 }
@@ -99,9 +106,9 @@ int hpx_main(hpx::program_options::variables_map& vm)
 {
     std::filesystem::create_directory("plots");
     threads = hpx::get_os_thread_count();
-    std::uint64_t const iterations = 1;
-    std::uint64_t const start = 5;
-    std::uint64_t const end = 27;
+    std::uint64_t iterations = vm["iterations"].as<std::uint64_t>();
+    std::uint64_t start = vm["start"].as<std::uint64_t>();
+    std::uint64_t end = vm["end"].as<std::uint64_t>();
 
     #if defined (SIMD_TEST_WITH_INT)
         test4<int, gen_int_t>("int", start, end, iterations, gen_int);
@@ -125,11 +132,11 @@ int main(int argc, char *argv[])
 
     po::options_description desc_commandline;
     desc_commandline.add_options()
-        ("iterations", po::value<std::uint64_t>()->default_value(50),
+        ("iterations", po::value<std::uint64_t>()->default_value(5),
          "number of repititions")
         ("start", po::value<std::uint64_t>()->default_value(5),
          "start of number of elements in 2^x")
-        ("end", po::value<std::uint64_t>()->default_value(25),
+        ("end", po::value<std::uint64_t>()->default_value(22),
          "end of number of elements in 2^x")
     ;
 

@@ -12,7 +12,7 @@ function(add_simd_test target)
     )
 
     target_compile_options(${target} PUBLIC "-march=native" "-fno-tree-vectorize")
-    target_link_libraries(${target} PUBLIC HPX::hpx)
+    # target_link_libraries(${target} PUBLIC HPX::hpx)
 
     set(CORES)
     if(${SIMD_CORES})
@@ -30,7 +30,7 @@ endfunction()
 set(subdirs 
     algorithms 
     # simd_math_tests
-    kernels
+    # kernels
 )
 
 foreach(subdir ${subdirs})

@@ -29,6 +29,20 @@ def get_detail_csv(df, policies):
         df2[f'{policy}_speed_up'] = df[f'seq'].to_numpy() / df[f'{policy}']
     return df2
 
+def get_full_csv(df):
+    mean_ = df.groupby(['n'])['seq', 'simd', 'par', 'par_simd'].mean()
+    max_ = df.groupby(['n'])['seq', 'simd', 'par', 'par_simd'].max()
+    min_ = df.groupby(['n'])['seq', 'simd', 'par', 'par_simd'].min()
+    median_ = df.groupby(['n'])['seq', 'simd', 'par', 'par_simd'].median()
+
+    df2 = pd.DataFrame()
+    for pol in ['seq', 'simd', 'par', 'par_simd']:
+        df2[f'{pol}_min'] = min_[pol]
+        df2[f'{pol}_max'] = max_[pol]
+        df2[f'{pol}_mean'] = mean_[pol]
+        df2[f'{pol}_median'] = median_[pol]
+    return df2
+
 def plot_grain_size(policies):
     fig, axs = plt.subplots(1, 1)
     fig.set_figheight(8)
@@ -83,6 +97,16 @@ def plot_grain_size(policies):
     plt.savefig(os.path.join(plots_path, f'{type_}_grain_size.png'))
 
 policies = ['seq', 'simd', 'par', 'par_simd']
+# cons = ['min', 'max', 'mean', 'median']
+# cons = ['min', 'max', 'mean']
+cons = ['median']
+
+ls = {
+    'min' : 'dotted',
+    'max' : 'dotted',
+    'mean' : 'solid',
+    'median' : 'solid'
+}
 policy_colors = {
                 'seq' : 'grey',
                 'simd' :  'orange', 
@@ -141,39 +165,46 @@ for path, dirs, files in os.walk('.'):
                     df = pd.read_csv(os.path.join(plots_path, file_))
                     df2 = get_detail_csv(df, policies_)
                     df2.to_csv(os.path.join(plots_path, f'{type_}_detail.csv'))
-
+                    df3 = get_full_csv(df)
+                    df3.to_csv(os.path.join(plots_path, f'{type_}_full.csv'))
                     fig, axs = plt.subplots(1, 1)
                     fig.set_figheight(8)
                     fig.set_figwidth(16)
 
-                    n = df['n'].to_numpy()
+                    n = df['n'].unique()
                     lane_size = df['lane'].to_numpy()[0]
                     threads = df['threads'].to_numpy()[0]
-                    seq = df['seq'].to_numpy()
 
                     width = 0
                     height = 0
                     peaks = {}
                     speed_ups = {}
-                    for policiy_idx, policy in enumerate(policies_):
-                        speed_up = seq / df[policy].to_numpy()
-                        speed_ups[policy] = speed_up
-                        peak = speed_up.max()
-                        peak_idx = speed_up.argmax()
-                        peaks[policy] = {'peak' : peak, 'peak_idx' : peak_idx}
-                        height = max(height, peak)
+                    for con in cons:
+                        seq = df3[f'seq_{con}'].to_numpy()
+                        for pol in policies:
+                            speed_up = seq / df3[f'{pol}_{con}'].to_numpy()
+                            speed_ups[f'{pol}_{con}'] = speed_up
+                            peak = speed_up.max()
+                            peak_idx = speed_up.argmax()
+                            peaks[f'{pol}_{con}'] = {'peak' : peak, 'peak_idx' : peak_idx}
+                            height = max(height, peak)
+                    
+                    
+                    # for policiy_idx, policy in enumerate(policies_):
+                    #     speed_up = seq / df3[f'{policy}_max'].to_numpy()
+                    #     speed_ups[policy] = speed_up
+                    #     peak = speed_up.max()
+                    #     peak_idx = speed_up.argmax()
+                    #     peaks[policy] = {'peak' : peak, 'peak_idx' : peak_idx}
+                    #     height = max(height, peak)
                     
                     height = round(height) + 1
                     width = len(n)
                     start = n[0]
                     end = n[-1]
 
-                    x_tick_labels = []
-                    y_tick_labels = []  
-
-                    x_tick_labels = n
+                    x_tick_labels = df['n'].astype(int).unique()
                     step_ = 0.1 * height
-
                     y_tick_labels = np.arange(0, height + math.log(height) * step_, step_)
 
                     # Title
@@ -185,24 +216,27 @@ for path, dirs, files in os.walk('.'):
                     axs.set_xlabel("Elements in 2^", color='green', fontsize=20)
 
                     # Plot speed ups
-                    for policiy_idx, policy in enumerate(policies_):
-                        axs.plot(n, speed_ups[policy], linewidth=2.0,
-                            linestyle='solid',
-                            marker="2",
-                            color=policy_colors[policy],
-                            zorder=10)
+                    for con in cons:
+                        for pol in policies:
+                        # for policiy_idx, policy in enumerate(policies_):
+                            axs.plot(n, speed_ups[f'{pol}_{con}'], linewidth=2.0,
+                                linestyle=ls[con],
+                                marker="2",
+                                color=policy_colors[pol],
+                                zorder=10,
+                                label=pol)
 
                         # Peaks
-                        if policy != 'seq':
-                            axs.text(peaks[policy]['peak_idx'] + start, peaks[policy]['peak'] + 0.2,
-                                            f"{round(peaks[policy]['peak'], 2)}",
+                        if pol != 'seq' and con == 'max':
+                            axs.text(peaks[f'{pol}_{con}']['peak_idx'] + start, peaks[f'{pol}_{con}']['peak'] + 0.2,
+                                            f"{round(peaks[f'{pol}_{con}']['peak'], 2)}",
                                             fontsize=12,
                                             weight="medium")
                     
                     # Box
                     cache_str_ = cache_str + f"{type_} pack size : {lane_size}\nthreads : {threads}"
                     axs.text(start, height - math.log2(height), cache_str_, bbox=dict(facecolor='grey', alpha=0.2), fontsize = 13, color="grey")
-                    
+                    axs.legend()
                     # Cache lines
                     for i in ['1', '2', '3']:
                         if f'l{i}' in util_dict:
@@ -211,14 +245,14 @@ for path, dirs, files in os.walk('.'):
                             axs.axvline(float_l, c='grey', ls='--')
                             axs.text(float_l - 0.3, height - math.log2(height), f'L{i} {type_}s', rotation=90, color='grey', fontsize=12)
 
-                    # Offset points annotations
-                    for line, name in zip(axs.lines, policies_):
-                        y = line.get_ydata()[-1]
-                        axs.annotate(name, xy=(1,y), xytext=(16,0), color=line.get_color(), 
-                        xycoords = axs.get_yaxis_transform(), textcoords="offset points",
-                        size=14, va="center")
+                    # # Offset points annotations
+                    # for line, name in zip(axs.lines, policies_):
+                    #     y = line.get_ydata()[-1]
+                    #     axs.annotate(name, xy=(1,y), xytext=(16,0), color=line.get_color(), 
+                    #     xycoords = axs.get_yaxis_transform(), textcoords="offset points",
+                    #     size=14, va="center")
                     
-                    axs.set_xticks(n)
+                    axs.set_xticks(x_tick_labels)
                     axs.set_yticks(y_tick_labels)
                     
                     plt.tight_layout()

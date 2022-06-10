@@ -1,0 +1,1 @@
+add_simd_test(for_each_compute_bound_default_chunk_eve_align)

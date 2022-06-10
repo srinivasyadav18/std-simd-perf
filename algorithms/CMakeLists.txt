@@ -4,9 +4,9 @@ set(subdirs
     # all_any_none 
     # copy
     # count
-    # fill
+    fill
     # find
-    for_each
+    # for_each
     # generate
     transform
 )

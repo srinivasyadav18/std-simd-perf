@@ -14,9 +14,9 @@
 
 std::size_t threads;
 
-#define SIMD_TEST_WITH_INT
+// #define SIMD_TEST_WITH_INT
 #define SIMD_TEST_WITH_FLOAT
-#define SIMD_TEST_WITH_DOUBLE
+// #define SIMD_TEST_WITH_DOUBLE
 
 template <typename ExPolicy, typename T, typename Gen>
 auto test(ExPolicy policy, std::size_t n, Gen gen)
